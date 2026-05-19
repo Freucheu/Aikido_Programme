@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Aïkido">
+<title>Programme Aïkido</title>
+<style>
+:root{--bg:#0f0f0f;--surf:#1a1a1a;--surf2:#242424;--brd:#2e2e2e;--txt:#f0f0f0;--txt2:#999;--txt3:#555;--grn:#4ade80;--grn-bg:#0d2b1a;--amb:#fbbf24;--amb-bg:#2b1a00;--red:#f87171;--red-bg:#2b0a0a;--blu:#60a5fa;--blu-bg:#0a1a2b;--pur:#a78bfa;--r:14px;--rsm:8px;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;overflow:hidden;}
+#app{height:100%;display:flex;flex-direction:column;max-width:430px;margin:0 auto;}
+.screen{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.topbar{display:flex;align-items:center;gap:10px;padding:54px 20px 14px;flex-shrink:0;}
+.topbar-title{flex:1;font-size:20px;font-weight:700;letter-spacing:-.3px;}
+.nav{display:flex;background:var(--surf);border-top:1px solid var(--brd);flex-shrink:0;}
+.nav-btn{flex:1;padding:10px 4px 14px;border:none;background:transparent;color:var(--txt3);font-size:10px;font-weight:500;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.nav-btn.on{color:var(--grn);}
+.nav-icon{font-size:20px;}
+/* HOME */
+.home-pad{padding:0 20px 20px;}
+.date-banner{font-size:13px;color:var(--txt3);font-weight:500;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;}
+.today-card{background:var(--surf);border-radius:var(--r);padding:20px;margin-bottom:16px;border:1px solid var(--brd);}
+.today-card.validated{border-color:var(--grn);background:var(--grn-bg);}
+.tc-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.tc-icon{font-size:32px;}
+.tc-name{font-size:20px;font-weight:700;}
+.tc-dur{font-size:13px;color:var(--txt2);margin-top:2px;}
+.tc-actions{display:flex;gap:8px;margin-top:14px;}
+.btn-start{flex:2;padding:14px;border-radius:var(--rsm);border:none;background:var(--grn);color:#000;font-size:15px;font-weight:700;cursor:pointer;}
+.btn-validate{flex:1;padding:14px;border-radius:var(--rsm);border:1px solid var(--grn);background:transparent;color:var(--grn);font-size:14px;font-weight:600;cursor:pointer;}
+.btn-validated{width:100%;padding:14px;border-radius:var(--rsm);border:none;background:var(--surf2);color:var(--grn);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;}
+.missed-banner{background:var(--red-bg);border:1px solid var(--red);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;}
+.mb-title{font-size:14px;font-weight:600;color:var(--red);margin-bottom:4px;}
+.mb-sub{font-size:13px;color:var(--txt2);margin-bottom:10px;}
+.mb-actions{display:flex;gap:8px;}
+.btn-recover{flex:1;padding:10px;border-radius:var(--rsm);border:none;background:var(--red);color:#fff;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-skip{flex:1;padding:10px;border-radius:var(--rsm);border:1px solid var(--brd);background:transparent;color:var(--txt2);font-size:13px;cursor:pointer;}
+.week-strip{display:flex;gap:6px;margin-bottom:20px;}
+.wd{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.wd-label{font-size:10px;color:var(--txt3);font-weight:500;}
+.wd-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;}
+.wd-dot.today{background:var(--surf2);border:2px solid var(--txt2);}
+.wd-dot.done{background:var(--grn);color:#000;}
+.wd-dot.missed{background:var(--red-bg);border:1px solid var(--red);color:var(--red);}
+.wd-dot.future{background:var(--surf);color:var(--txt3);}
+.wd-dot.rest{color:var(--txt3);}
+.wd-type{font-size:9px;color:var(--txt3);text-align:center;line-height:1.2;}
+/* SESSIONS */
+.session-list{padding:0 20px;display:flex;flex-direction:column;gap:10px;}
+.sc{background:var(--surf);border-radius:var(--r);padding:16px;cursor:pointer;border:1px solid var(--brd);}
+.sc:active{background:var(--surf2);}
+.sc-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.sc-ico{font-size:24px;}
+.sc-name{font-size:16px;font-weight:600;}
+.sc-dur{font-size:12px;color:var(--txt2);}
+.sc-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.sc-tag{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--surf2);color:var(--txt2);}
+/* HISTORY */
+.history-list{padding:0 20px;display:flex;flex-direction:column;gap:8px;}
+.hist-day{background:var(--surf);border-radius:var(--r);padding:14px 16px;border:1px solid var(--brd);display:flex;align-items:center;gap:12px;}
+.hist-day.done{border-left:3px solid var(--grn);}
+.hist-day.missed{border-left:3px solid var(--red);}
+.hist-day.future{opacity:.5;}
+.hist-ico{font-size:20px;flex-shrink:0;}
+.hist-info{flex:1;}
+.hist-name{font-size:14px;font-weight:500;}
+.hist-date{font-size:12px;color:var(--txt2);margin-top:1px;}
+.hist-status{font-size:12px;font-weight:600;}
+.hist-status.done{color:var(--grn);}
+.hist-status.missed{color:var(--red);}
+.hist-status.future{color:var(--txt3);}
+/* EXERCISE */
+.ex-topbar{display:flex;align-items:center;gap:12px;padding:50px 20px 12px;border-bottom:1px solid var(--brd);flex-shrink:0;}
+.btn-icon{width:36px;height:36px;border-radius:50%;background:var(--surf);border:none;color:var(--txt);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.ex-prog-wrap{flex:1;}
+.ex-prog-lbl{font-size:11px;color:var(--txt3);margin-bottom:4px;}
+.ex-prog-bar{height:3px;background:var(--brd);border-radius:2px;overflow:hidden;}
+.ex-prog-fill{height:100%;background:var(--grn);border-radius:2px;transition:width .3s;}
+.ex-body{flex:1;overflow-y:auto;padding:20px;}
+.ex-sec-lbl{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);margin-bottom:6px;}
+.ex-sec-lbl.cool{color:var(--pur);}
+.ex-name{font-size:22px;font-weight:700;letter-spacing:-.2px;margin-bottom:10px;line-height:1.2;}
+.ex-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.etag{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;}
+.te{background:var(--amb-bg);color:var(--amb);}
+.ts{background:var(--blu-bg);color:var(--blu);}
+.td{background:var(--grn-bg);color:var(--grn);}
+.tb{background:var(--surf2);color:var(--txt2);}
+.tw{background:#1a0a2e;color:var(--pur);}
+.tr{background:var(--red-bg);color:var(--red);}
+.tcool{background:#1a0a2e;color:var(--pur);}
+/* DIFFICULTY BADGE */
+.diff-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:3px 9px;border-radius:20px;margin-bottom:14px;font-weight:500;}
+.diff-easy{background:#1a2e3b;color:var(--blu);}
+.diff-norm{background:var(--surf2);color:var(--txt3);}
+.diff-hard{background:#2e1a00;color:var(--amb);}
+.diff-max{background:#2b1a00;color:#ff9500;}
+/* TIMER */
+.timer-box{background:var(--surf);border-radius:var(--r);padding:22px 16px;margin-bottom:14px;text-align:center;border:1px solid var(--brd);}
+.timer-lbl{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);margin-bottom:6px;}
+.timer-lbl.rest{color:var(--amb);}
+.timer-num{font-size:58px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-2px;line-height:1;margin-bottom:14px;}
+.timer-num.rest{color:var(--amb);}
+.timer-num.zero{color:var(--grn);}
+.timer-num.warn{color:var(--red);}
+.timer-btns{display:flex;align-items:center;justify-content:center;gap:14px;}
+.tbtn{width:58px;height:58px;border-radius:50%;border:none;font-size:26px;cursor:pointer;font-weight:700;}
+.tbtn.play{background:var(--grn);color:#000;}
+.tbtn.pause{background:var(--amb);color:#000;}
+.tbtn.reset{background:var(--surf2);color:var(--txt2);font-size:17px;}
+/* SETS */
+.sets-box{background:var(--surf);border-radius:var(--r);padding:18px;margin-bottom:14px;border:1px solid var(--brd);}
+.sets-row{display:flex;justify-content:space-around;margin-bottom:12px;}
+.sets-col{text-align:center;}
+.sets-col-lbl{font-size:11px;color:var(--txt3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;}
+.sets-big{font-size:38px;font-weight:700;line-height:1;}
+.sets-reps{font-size:17px;font-weight:600;}
+.sets-dots{display:flex;gap:5px;justify-content:center;margin-bottom:14px;}
+.sdot{width:9px;height:9px;border-radius:50%;background:var(--brd);}
+.sdot.done{background:var(--grn);}
+.sdot.cur{background:var(--amb);}
+.act-btn{width:100%;padding:13px;border-radius:var(--rsm);border:none;font-size:14px;font-weight:600;cursor:pointer;}
+.act-btn.rest{background:var(--amb-bg);color:var(--amb);}
+.act-btn.next-set{background:var(--grn-bg);color:var(--grn);}
+.reps-box{background:var(--surf);border-radius:var(--r);padding:20px;margin-bottom:14px;text-align:center;border:1px solid var(--brd);}
+.reps-val{font-size:22px;font-weight:700;margin-top:6px;}
+/* STEPS / YT */
+.steps-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--surf);border-radius:var(--rsm);cursor:pointer;margin-bottom:6px;border:1px solid var(--brd);}
+.steps-hdr-lbl{font-size:14px;font-weight:500;color:var(--txt2);}
+.steps-hdr-ico{font-size:11px;color:var(--txt3);transition:transform .2s;}
+.steps-hdr-ico.o{transform:rotate(90deg);}
+.steps-body{background:var(--surf);border-radius:var(--rsm);padding:10px 12px;border:1px solid var(--brd);margin-bottom:10px;}
+.step-row{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--brd);}
+.step-row:last-child{border-bottom:none;}
+.step-n{width:18px;height:18px;border-radius:50%;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--txt2);flex-shrink:0;margin-top:1px;}
+.step-t{font-size:13px;color:var(--txt2);line-height:1.5;}
+.yt-btn{display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--red-bg);border:1px solid #5a1a1a;border-radius:var(--rsm);cursor:pointer;text-decoration:none;color:var(--red);font-size:13px;font-weight:500;margin-bottom:10px;}
+/* BOTTOM */
+.ex-bottom{padding:14px 20px 30px;border-top:1px solid var(--brd);flex-shrink:0;background:var(--bg);}
+.nav-row{display:flex;gap:8px;}
+.nav-btn2{flex:1;padding:15px;border-radius:var(--r);border:none;font-size:15px;font-weight:600;cursor:pointer;}
+.nav-btn2.prev{background:var(--surf);color:var(--txt2);}
+.nav-btn2.next{background:var(--grn);color:#000;}
+.nav-btn2.finish{background:var(--blu);color:#fff;}
+.nav-btn2:disabled{opacity:.3;}
+/* FEEDBACK OVERLAY */
+.fb-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;z-index:100;backdrop-filter:blur(4px);}
+.fb-sheet{background:var(--surf);border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:430px;margin:0 auto;}
+.fb-ex-name{font-size:13px;color:var(--txt3);margin-bottom:6px;text-align:center;}
+.fb-title{font-size:22px;font-weight:700;text-align:center;margin-bottom:24px;letter-spacing:-.2px;}
+.fb-btns{display:flex;flex-direction:column;gap:10px;}
+.fb-btn{width:100%;padding:16px;border-radius:var(--r);border:none;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:12px;}
+.fb-btn .fb-ico{font-size:24px;width:32px;text-align:center;}
+.fb-btn .fb-lbl{flex:1;text-align:left;}
+.fb-btn .fb-sub{font-size:12px;opacity:.7;font-weight:400;}
+.fb-easy{background:#0a1a2b;color:var(--blu);}
+.fb-norm{background:var(--surf2);color:var(--txt);}
+.fb-hard{background:var(--red-bg);color:var(--red);}
+.fb-skip{width:100%;padding:12px;border-radius:var(--rsm);border:none;background:transparent;color:var(--txt3);font-size:13px;cursor:pointer;margin-top:4px;}
+/* COMPLETE */
+.complete{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;gap:14px;}
+.cmp-ico{font-size:60px;}
+.cmp-title{font-size:26px;font-weight:700;}
+.cmp-sub{font-size:15px;color:var(--txt2);}
+.cmp-quote{font-size:13px;color:var(--txt3);margin-top:4px;}
+.cmp-btn{margin-top:10px;padding:15px 40px;border-radius:var(--r);border:none;background:var(--grn);color:#000;font-size:16px;font-weight:700;cursor:pointer;}
+.cmp-btn2{padding:12px 30px;border-radius:var(--r);border:1px solid var(--brd);background:transparent;color:var(--txt2);font-size:14px;cursor:pointer;}
+.sp{height:16px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ─── AUDIO ───────────────────────────────────────────────────────
+let _ac=null;
+function ac(){if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();return _ac;}
+function beep(f=880,d=0.3,v=0.5){try{const c=ac();if(c.state==='suspended')c.resume();const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;g.gain.setValueAtTime(v,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+d);o.start(c.currentTime);o.stop(c.currentTime+d);}catch(e){}}
+function beepDone(){beep(880,0.15,0.6);setTimeout(()=>beep(1100,0.25,0.5),180);}
+function beepWarn(){beep(660,0.1,0.3);}
+document.addEventListener('touchstart',()=>{try{ac();}catch(e){}},{once:true});
+
+// ─── SCHEDULE ────────────────────────────────────────────────────
+const SCHED={1:'seanceA',2:'routine',3:'routineDojo',4:'routine',5:'seanceB',6:'routineDojo',0:'rest'};
+const CREF=new Date('2026-05-26');
+function getSchedSid(date){
+  const d=new Date(date);d.setHours(0,0,0,0);
+  if(d.getDay()===2){const w=Math.round((d-CREF)/(7*86400000));if(w>=0&&w%2===0)return 'course';}
+  return SCHED[d.getDay()];
+}
+const SMETA={seanceA:{name:'Séance A',icon:'🥋',dur:'30 min'},seanceB:{name:'Séance B',icon:'🦵',dur:'30 min'},routine:{name:'Routine',icon:'🌅',dur:'15 min'},routineDojo:{name:'Routine + Dojo',icon:'🌅',dur:'15 min'},course:{name:'Course à pied',icon:'🏃',dur:'20-35 min'},rest:{name:'Repos',icon:'😴',dur:''}};
+
+// ─── DIFFICULTY ──────────────────────────────────────────────────
+function diffKey(sid,idx){return 'aik_diff_'+sid+'_'+idx;}
+function getDiff(sid,idx){return parseInt(localStorage.getItem(diffKey(sid,idx))||'0');}
+function setDiff(sid,idx,v){localStorage.setItem(diffKey(sid,idx),String(Math.max(-3,Math.min(3,v))));}
+// Calcule l'ajustement proportionnel : 15% de la durée de base, arrondi aux 5s, minimum 5s
+function calcAdj(baseDuration){
+  return Math.max(5, Math.round(baseDuration*0.15/5)*5);
+}
+function applyDiff(ex,sid,idx){
+  if(!ex.fb)return ex;
+  const lv=getDiff(sid,idx);
+  const r={...ex,_diffLevel:lv};
+  if(ex.type==='time'&&ex.duration){
+    const adj=calcAdj(ex.duration); // ajustement par niveau, proportionnel à la base
+    const totalAdj=lv*adj;
+    r.duration=Math.max(10,ex.duration+totalAdj);
+    const sign=totalAdj>0?'+':'';
+    r._diffText=lv!==0?`${sign}${totalAdj}s`:'';
+  }else if(ex.type==='sets'&&ex.baseReps!==undefined){
+    const nr=Math.max(3,ex.baseReps+lv*2); // ±2 reps par niveau
+    const suffix=ex.reps.replace(/\d+/,nr);
+    r.reps=suffix;
+    const totalAdj=lv*2;
+    r._diffText=lv!==0?(totalAdj>0?`+${totalAdj} rép.`:`${totalAdj} rép.`):'';
+  }
+  return r;
+}
+function diffBadgeHtml(ex){
+  if(!ex.fb||ex._diffLevel===0||ex._diffLevel===undefined)return '';
+  const lv=ex._diffLevel;
+  const txt=ex._diffText||'';
+  if(lv>0)return `<div class="diff-badge diff-${lv>=2?'max':'hard'}">↑ Difficulté augmentée ${txt}</div>`;
+  return `<div class="diff-badge diff-easy">↓ Difficulté allégée ${txt}</div>`;
+}
+
+// ─── COOLDOWNS ───────────────────────────────────────────────────
+const CDA=[
+  {name:'Étirement pectoraux à l\'élastique',sec:'Étirements finaux',tags:['cool'],type:'time',duration:45,sideNote:'Chaque côté',yt:'chest stretch resistance band doorway',steps:['Élastique fixé derrière toi. Tiens-le d\'une main, bras tendu.','Tourne lentement le buste à l\'opposé.']},
+  {name:'Étirement triceps derrière la tête',sec:null,tags:['cool'],type:'time',duration:30,sideNote:'Chaque bras',yt:'overhead tricep stretch',steps:['Plie un coude, main dans le dos.','L\'autre main appuie doucement sur le coude vers le bas.']},
+  {name:'Étirement grand dorsal — côté',sec:null,tags:['cool'],type:'time',duration:40,sideNote:'Chaque côté',yt:'lat stretch side bend',steps:['Debout, un bras levé. Incline-toi latéralement à l\'opposé.']},
+  {name:'Chat / Vache — mobilisation finale',sec:null,tags:['cool'],type:'time',duration:60,yt:'cat cow stretch spine',steps:['En quadrupédie. Inspirant : creuse le dos. Expirant : arrondis.','10 cycles lents.']},
+  {name:'Respiration profonde',sec:null,tags:['cool'],type:'time',duration:60,yt:'savasana breathing relaxation',steps:['Allongé, inspire 4 temps, retiens 2, expire 6.']},
+];
+const CDB=[
+  {name:'Pigeon pose — étirement hanche',sec:'Étirements finaux',tags:['cool'],type:'time',duration:60,sideNote:'Chaque côté',yt:'pigeon pose hip stretch yoga',steps:['Genou avant au sol, jambe arrière allongée.','Relâche le buste vers l\'avant. Respirations profondes.']},
+  {name:'Étirement ischio-jambiers au sol',sec:null,tags:['cool'],type:'time',duration:45,sideNote:'Chaque jambe',yt:'lying hamstring stretch',steps:['Allongé, relevez une jambe tendue. Mains derrière la cuisse.']},
+  {name:'Grenouille — adducteurs profonds',sec:null,tags:['cool'],type:'time',duration:90,yt:'frog pose groin stretch',steps:['À genoux, écartez les genoux. Respirez profondément.']},
+  {name:'Torsion dorsale allongée',sec:null,tags:['cool'],type:'time',duration:40,sideNote:'Chaque côté',yt:'supine spinal twist stretch',steps:['Allongé, genou fléchi à l\'opposé. Bras en croix.']},
+  {name:'Respiration profonde',sec:null,tags:['cool'],type:'time',duration:60,yt:'savasana breathing',steps:['Inspire 4, retiens 2, expire 6.']},
+];
+const CDC=[
+  {name:'Étirement ischio-jambiers debout',sec:'Retour au calme',tags:['cool'],type:'time',duration:45,sideNote:'Chaque jambe',yt:'standing hamstring stretch',steps:['Talon sur une surface. Buste vers l\'avant, dos plat.']},
+  {name:'Fléchisseurs de hanche',sec:null,tags:['cool'],type:'time',duration:45,sideNote:'Chaque côté',yt:'kneeling hip flexor stretch',steps:['En fente basse, genou au sol. Pousse les hanches en avant.']},
+  {name:'Adducteurs — fente latérale',sec:null,tags:['cool'],type:'time',duration:45,yt:'lateral lunge adductor stretch',steps:['Pieds très écartés, descends d\'un côté.']},
+  {name:'Respiration profonde',sec:null,tags:['cool'],type:'time',duration:60,yt:'deep breathing recovery',steps:['Inspire 4, retiens 2, expire 6. 8 cycles.']},
+];
+const CDR=[
+  {name:'Étirement latéral debout',sec:'Étirements finaux',tags:['cool'],type:'time',duration:30,sideNote:'Chaque côté',yt:'standing side stretch',steps:['Un bras levé, inclines-toi latéralement.']},
+  {name:'Flexion avant — relâchement dos',sec:null,tags:['cool'],type:'time',duration:45,yt:'standing forward fold stretch',steps:['Debout, penche-toi vers l\'avant. Nuque relâchée.']},
+];
+
+// ─── SESSIONS ────────────────────────────────────────────────────
+const SESSIONS=[
+  {id:'routine',name:'Routine quotidienne',icon:'🌅',dur:'15 min',tags:['Chaque jour'],exercises:[
+    {name:'Rotations cervicales + épaules',sec:'Réveil articulaire',tags:['b'],type:'time',duration:60,yt:'neck shoulder rotation warmup',steps:['Cercles cervicaux lents dans les 2 sens (30s).','Grands cercles d\'épaules alternés (30s).']},
+    {name:'Mobilisation poignets',sec:null,tags:['b'],type:'time',duration:60,yt:'wrist mobility exercises',steps:['Rotations dans les 2 sens.','Flexions/extensions progressives.','Écartement des doigts (10s).']},
+    {name:'Rotations hanches + chevilles',sec:null,tags:['b'],type:'time',duration:120,yt:'hip ankle rotation mobility',steps:['Grands cercles de hanche dans chaque sens, 30s.','Rotations de cheville en équilibre, 30s chaque pied.']},
+    {name:'Dislocations élastique',sec:'Épaules',tags:['e'],type:'reps',reps:'10 répétitions',yt:'shoulder dislocations resistance band',steps:['Élastique à 2 mains, bras tendus devant toi.','Passe-le de devant à derrière la tête.','Reviens lentement.']},
+    {name:'Sleeper stretch',sec:null,tags:['b'],type:'time',duration:45,sideNote:'Chaque côté',fb:true,yt:'sleeper stretch shoulder internal rotation',steps:['Allongé sur le côté, épaule en dessous.','Main libre pousse l\'avant-bras vers le sol.']},
+    {name:'Étirement postérieur croisé',sec:null,tags:['b'],type:'time',duration:30,sideNote:'Chaque côté',yt:'cross body shoulder stretch',steps:['Bras en travers de la poitrine.','Appuie au-dessus du coude.']},
+    {name:'Ischio-jambiers debout',sec:'Jambes & Pancake',tags:['b'],type:'time',duration:45,sideNote:'Chaque côté',fb:true,yt:'standing hamstring stretch',steps:['Talon posé sur une surface haute. Buste vers l\'avant, dos plat.']},
+    {name:'Fente basse — fléchisseurs',sec:null,tags:['b'],type:'time',duration:30,sideNote:'Chaque côté',fb:true,yt:'kneeling hip flexor stretch',steps:['Genou arrière au sol. Pousse les hanches en avant.']},
+    {name:'Pancake assis — compression active',sec:null,tags:['b'],type:'time',duration:120,fb:true,yt:'pancake stretch seated straddle',steps:['Assis, jambes écartées. Mains derrière, dos droit.','Bascule le bassin en avant. Contracte les quadriceps.','3 cycles contraction-relâchement.']},
+    {name:'Écart latéral PNF',sec:null,tags:['b'],type:'time',duration:90,fb:true,yt:'middle splits PNF stretching',steps:['Assis en écart. Contracte les adducteurs 6s.','Relâche : les jambes glissent plus loin. 4-5 cycles.']},
+    {name:'Quadriceps debout',sec:null,tags:['b'],type:'time',duration:30,sideNote:'Chaque côté',yt:'standing quad stretch',steps:['Plie un genou, pied vers la fesse. Pousse la hanche en avant.']},
+    {name:'Shomen uchi — bokken',sec:'Suburi',tags:['w'],type:'reps',reps:'15 frappes lentes',yt:'aikido bokken suburi shomen uchi',steps:['Position de garde. Lève en inspirant. Descends en expirant.']},
+    {name:'Tsuki — jo',sec:null,tags:['w'],type:'reps',reps:'15 rép. chaque côté',yt:'aikido jo tsuki suburi',steps:['Poussée directe en ligne droite. Bras directeur tendu.']},
+    ...CDR
+  ]},
+  {id:'routineDojo',name:'Routine + Dojo',icon:'🌅',dur:'15 min',tags:['Avant le dojo'],exercises:[
+    {name:'Rotations cervicales + épaules',sec:'Réveil articulaire',tags:['b'],type:'time',duration:60,yt:'neck shoulder rotation warmup',steps:['Cercles cervicaux (30s). Cercles d\'épaules (30s).']},
+    {name:'Mobilisation poignets',sec:null,tags:['b'],type:'time',duration:60,yt:'wrist mobility',steps:['Rotations dans les 2 sens. Flexions/extensions.']},
+    {name:'Rotations hanches + chevilles',sec:null,tags:['b'],type:'time',duration:90,yt:'hip ankle rotation',steps:['Grands cercles de hanche. Rotations de cheville.']},
+    {name:'Dislocations élastique',sec:'Épaules',tags:['e'],type:'reps',reps:'10 répétitions',yt:'shoulder dislocations band',steps:['Passe l\'élastique de devant à derrière, coudes verrouillés.']},
+    {name:'Sleeper stretch',sec:null,tags:['b'],type:'time',duration:45,sideNote:'Chaque côté',yt:'sleeper stretch shoulder',steps:['Sur le côté, main libre pousse l\'avant-bras vers le sol.']},
+    {name:'Shomen uchi — bokken',sec:'Suburi',tags:['w'],type:'reps',reps:'15 frappes lentes',yt:'aikido bokken shomen uchi',steps:['Position de garde. Lève et descends en ligne droite.']},
+    {name:'Tsuki — jo',sec:null,tags:['w'],type:'reps',reps:'15 rép. chaque côté',yt:'aikido jo tsuki',steps:['Poussée directe. Bras directeur tendu.']},
+  ]},
+  {id:'seanceA',name:'Séance A — Haut du corps',icon:'🥋',dur:'30 min',tags:['Tronc & haut','Bokken'],exercises:[
+    {name:'Thread the needle',sec:'Mobilité',tags:['b'],type:'sets',sets:2,reps:'6 chaque côté',restTime:30,yt:'thread needle stretch thoracic spine',steps:['En quadrupédie, glissez un bras sous le torse.','Ouvrez grand vers le plafond. 3s dans chaque position.']},
+    {name:'Mobilisation poignets en quadrupédie',sec:null,tags:['b'],type:'time',duration:90,yt:'wrist mobility quadruped',steps:['Appuis paumes au sol, cercles. Puis doigts vers l\'arrière.']},
+    {name:'Band pull-apart',sec:'Épaules',tags:['e'],type:'sets',sets:3,reps:'12 répétitions',baseReps:12,restTime:30,fb:true,yt:'band pull apart shoulder exercise',steps:['Élastique à 2 mains à hauteur de poitrine.','Écartez jusqu\'au sternum. Serrez les omoplates.']},
+    {name:'Wall slides',sec:null,tags:['b'],type:'sets',sets:2,reps:'10 répétitions',baseReps:10,restTime:30,fb:true,yt:'wall slides shoulder mobility',steps:['Dos, fesses, tête au mur. Bras en "W".','Glissez les bras vers le haut en maintenant le contact.']},
+    {name:'Distraction épaule à l\'élastique',sec:null,tags:['e'],type:'time',duration:45,sideNote:'Chaque côté',yt:'shoulder band distraction',steps:['Élastique en hauteur. Poignet dans la boucle.','Relâche complètement le bras.']},
+    {name:'Dips aux barres',sec:'Renforcement',tags:['d'],type:'sets',sets:3,reps:'10 répétitions',baseReps:10,restTime:30,fb:true,yt:'dips exercise proper form',steps:['Buste légèrement incliné. Descends lentement.','Montée explosive. Épaules basses en haut.']},
+    {name:'Rowing aux sangles',sec:null,tags:['s'],type:'sets',sets:3,reps:'12 répétitions',baseReps:12,restTime:30,fb:true,yt:'TRX row suspension trainer',steps:['Corps incliné sous les sangles.','Tire les mains vers les flancs en serrant les omoplates.']},
+    {name:'Pompes pieds dans sangles',sec:null,tags:['s'],type:'sets',sets:3,reps:'10 répétitions',baseReps:10,restTime:30,fb:true,yt:'TRX push up feet straps suspension',steps:['Pieds dans les sangles, mains au sol.','Descends lentement (2-3s). Pousse de façon explosive.']},
+    {name:'Fallout aux sangles',sec:null,tags:['s'],type:'sets',sets:3,reps:'8 répétitions',baseReps:8,restTime:30,fb:true,yt:'TRX fallout body saw abs',steps:['Sangles bras tendus. Glisse vers l\'avant.','Reviens en contractant le ventre.']},
+    {name:'L-sit aux barres',sec:null,tags:['d'],type:'sets',sets:3,reps:'20 secondes',restTime:30,fb:true,yt:'L-sit parallel bars',steps:['Appui sur les barres, bras verrouillés.','Lève les jambes à l\'horizontale.']},
+    {name:'Tai no henko avec bokken',sec:'Bokken',tags:['w'],type:'sets',sets:2,reps:'10 chaque côté',restTime:30,yt:'aikido tai no henko bokken',steps:['En garde. Tenkan : pivote 180° avec le bokken aligné.']},
+    {name:'Ikkyo irimi + tenkan au bokken',sec:null,tags:['w'],type:'time',duration:120,yt:'aikido ikkyo bokken irimi tenkan',steps:['Imagine une frappe shomen. Entre en irimi. Puis tenkan.']},
+    ...CDA
+  ]},
+  {id:'seanceB',name:'Séance B — Bas du corps',icon:'🦵',dur:'30 min',tags:['Hanches & jambes','Jo'],exercises:[
+    {name:'Fente basse + rotation thoracique',sec:'Mobilité hanches',tags:['b'],type:'sets',sets:2,reps:'6 chaque côté',restTime:30,yt:'hip flexor stretch thoracic rotation',steps:['Grand pas en fente basse.','Ouvre le bras opposé vers le plafond. Maintiens 2s.']},
+    {name:'Pigeon pose assisté à la sangle',sec:null,tags:['s'],type:'time',duration:90,sideNote:'Chaque côté',fb:true,yt:'pigeon pose hip stretch',steps:['Genou avant au sol. Sangle autour du pied arrière.','Relâche le buste vers l\'avant.']},
+    {name:'Squat profond statique avec sangles',sec:null,tags:['s'],type:'time',duration:90,fb:true,yt:'deep squat hold TRX',steps:['Tiens les sangles, descends au maximum.','Relâche progressivement la tension.']},
+    {name:'Sleeper stretch',sec:'Épaules',tags:['b'],type:'time',duration:45,sideNote:'Chaque côté',yt:'sleeper stretch shoulder',steps:['Sur le côté, main libre pousse l\'avant-bras vers le sol.']},
+    {name:'Rotation externe élastique',sec:null,tags:['e'],type:'sets',sets:2,reps:'12 chaque côté',baseReps:12,restTime:30,fb:true,yt:'external rotation band shoulder',steps:['Coude fléchi à 90°, collé au flanc.','Tire la main vers l\'extérieur.']},
+    {name:'Papillon PNF — adducteurs',sec:'Entre-jambe',tags:['b'],type:'time',duration:120,fb:true,yt:'butterfly stretch PNF adductors',steps:['Contracte les adducteurs 5s. Relâche. 4-5 cycles.']},
+    {name:'Cossack squat',sec:null,tags:['b'],type:'sets',sets:2,reps:'8 chaque côté',baseReps:8,restTime:30,fb:true,yt:'cossack squat lateral lunge',steps:['Pieds très écartés. Descends d\'un côté, jambe opposée tendue.']},
+    {name:'Squat bulgare aux sangles',sec:'Renforcement',tags:['s'],type:'sets',sets:3,reps:'10 chaque jambe',baseReps:10,restTime:30,fb:true,yt:'Bulgarian split squat TRX',steps:['Pied arrière dans la sangle. Pied avant en fente.','Descends, cuisse avant parallèle au sol.']},
+    {name:'Pont fessier unilatéral + élastique',sec:null,tags:['e'],type:'sets',sets:3,reps:'12 chaque côté',baseReps:12,restTime:30,fb:true,yt:'single leg glute bridge resistance band',steps:['Élastique en travers des hanches. Lève une jambe.','Pousse le talon pour lever le bassin.']},
+    {name:'Nordic curl assisté élastique',sec:null,tags:['e'],type:'sets',sets:3,reps:'6 répétitions',baseReps:6,restTime:30,fb:true,yt:'nordic curl resistance band assisted',steps:['Chevilles sous la barre. Élastique devant toi.','Abaisse lentement. Ischio-jambiers résistent.']},
+    {name:'Pistol squat assisté aux sangles',sec:null,tags:['s'],type:'sets',sets:3,reps:'8 chaque jambe',baseReps:8,restTime:30,fb:true,yt:'pistol squat TRX assisted',steps:['Tiens les sangles. Lève une jambe devant.','Descends sur la jambe portante jusqu\'au fond.']},
+    {name:'Happo uchi au jo',sec:'Jo',tags:['w'],type:'sets',sets:2,reps:'1 série (8 directions)',restTime:30,yt:'aikido jo happo uchi',steps:['Frappe dans les 8 directions. Déplacement à chaque frappe.']},
+    {name:'Tsuki + kaiten au jo',sec:null,tags:['w'],type:'reps',reps:'10 répétitions',yt:'aikido jo tsuki kaiten',steps:['Tsuki direct puis rotation 180° (kaiten).']},
+    ...CDB
+  ]},
+  {id:'course',name:'Course à pied',icon:'🏃',dur:'20-35 min',tags:['1 semaine / 2'],exercises:[
+    {name:'Marche d\'échauffement',sec:'Départ',tags:['r'],type:'time',duration:300,yt:'walking warmup cardio',steps:['Marche rapide, rotations de bras.']},
+    {name:'Sem. 1-2 : Course / Marche alternées',sec:'Programme',tags:['r'],type:'reps',reps:'6-7 cycles de 3 min',yt:'run walk interval beginner',steps:['1 min course, 2 min marche. Répète 6-7 fois.']},
+    {name:'Sem. 3-4 : Intervalles progressifs',sec:null,tags:['r'],type:'reps',reps:'8 cycles de 3 min',yt:'run walk interval training',steps:['2 min course, 1 min marche. Répète 8 fois.']},
+    {name:'Sem. 5-6 : Course continue',sec:null,tags:['r'],type:'time',duration:1500,yt:'easy run 25 minutes',steps:['25 min en continu.']},
+    {name:'Sem. 7-8 : Fartlek aïkido',sec:null,tags:['r'],type:'reps',reps:'10 min + 8 cycles',yt:'fartlek running workout',steps:['10 min légère. 8× : 30s rapide + 1 min lent.']},
+    ...CDC
+  ]}
+];
+
+// ─── STATE ───────────────────────────────────────────────────────
+const ST={tab:'home',exSession:null,exIdx:0,currentSet:1,timeLeft:0,timerOn:false,isRest:false,showSteps:false,showFeedback:false,feedbackExIdx:0};
+let timerInt=null;
+
+// ─── STORAGE ─────────────────────────────────────────────────────
+function skey(d){const dt=new Date(d);return 'aik_'+dt.getFullYear()+'_'+String(dt.getMonth()+1).padStart(2,'0')+'_'+String(dt.getDate()).padStart(2,'0');}
+function getRec(d){try{return JSON.parse(localStorage.getItem(skey(d)))||{};}catch{return {};}}
+function setRec(d,v){localStorage.setItem(skey(d),JSON.stringify(v));}
+function isVal(d){return getRec(d).validated===true;}
+function validate(d,sid){setRec(d,{...getRec(d),validated:true,sessionId:sid,validatedAt:Date.now()});}
+function skipMissed(d){setRec(d,{...getRec(d),skipped:true});}
+function recover(d){setRec(d,{...getRec(d),skipped:true,recovered:true});}
+
+// ─── HELPERS ─────────────────────────────────────────────────────
+function tdstr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function today(){const d=new Date();d.setHours(0,0,0,0);return d;}
+function addD(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function fmt(s){const m=Math.floor(s/60),sc=s%60;return m+':'+(sc<10?'0':'')+sc;}
+const DL=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+const ML=['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+function fmtD(d){return DL[d.getDay()]+' '+d.getDate()+' '+ML[d.getMonth()];}
+function getMissed(){
+  const r=[];
+  for(let i=1;i<=7;i++){const d=addD(today(),-i);const sid=getSchedSid(d);if(sid==='rest')continue;const rec=getRec(d);if(!rec.validated&&!rec.skipped)r.push({date:d,sessionId:sid,dateStr:fmtD(d)});}
+  return r;
+}
+function tags2html(tags){
+  const m={e:'te',s:'ts',d:'td',b:'tb',w:'tw',r:'tr',cool:'tcool'};
+  const l={e:'Élastique',s:'Sangles',d:'Dips',b:'Corps',w:'Bokken/Jo',r:'Course',cool:'Étirement'};
+  return (tags||[]).map(t=>`<span class="etag ${m[t]||'tb'}">${l[t]||t}</span>`).join('');
+}
+function getSess(id){return SESSIONS.find(s=>s.id===id);}
+function getAdjEx(){
+  const s=ST.exSession;
+  return s.exercises.map((ex,i)=>applyDiff(ex,s.id,i));
+}
+
+// ─── TIMER ───────────────────────────────────────────────────────
+function startTimer(){
+  if(timerInt)clearInterval(timerInt);
+  ST.timerOn=true;
+  timerInt=setInterval(()=>{
+    if(ST.timeLeft>0){ST.timeLeft--;if(ST.timeLeft===3)beepWarn();if(ST.timeLeft===0){clearInterval(timerInt);ST.timerOn=false;beepDone();if(navigator.vibrate)navigator.vibrate([200,100,200]);}render();}
+  },1000);
+}
+function pauseTimer(){clearInterval(timerInt);ST.timerOn=false;render();}
+function resetTimer(){
+  clearInterval(timerInt);ST.timerOn=false;
+  const ex=getAdjEx()[ST.exIdx];ST.timeLeft=ex.duration||0;ST.isRest=false;render();
+}
+function startRest(){
+  clearInterval(timerInt);ST.isRest=true;ST.timeLeft=30;ST.timerOn=true;
+  timerInt=setInterval(()=>{
+    if(ST.timeLeft>0){ST.timeLeft--;if(ST.timeLeft===3)beepWarn();if(ST.timeLeft===0){clearInterval(timerInt);ST.timerOn=false;ST.isRest=false;beepDone();if(navigator.vibrate)navigator.vibrate([200,100,200]);}render();}
+  },1000);render();
+}
+
+// ─── FEEDBACK ────────────────────────────────────────────────────
+function showFb(){
+  const ex=getAdjEx()[ST.exIdx];
+  if(!ex.fb){doNextEx();return;}
+  ST.showFeedback=true;ST.feedbackExIdx=ST.exIdx;render();
+}
+function applyFeedback(rating){
+  const sid=ST.exSession.id;
+  const idx=ST.feedbackExIdx;
+  const curr=getDiff(sid,idx);
+  if(rating==='easy')setDiff(sid,idx,curr+1);
+  else if(rating==='hard')setDiff(sid,idx,curr-1);
+  ST.showFeedback=false;
+  doNextEx();
+}
+function skipFeedback(){ST.showFeedback=false;doNextEx();}
+
+function doNextEx(){
+  clearInterval(timerInt);timerInt=null;
+  const exs=getAdjEx();
+  if(ST.exIdx<exs.length-1){
+    ST.exIdx++;ST.currentSet=1;
+    const ex=exs[ST.exIdx];
+    ST.timeLeft=ex.type==='time'?ex.duration:0;
+    ST.timerOn=false;ST.isRest=false;ST.showSteps=false;render();
+  }else{ST.tab='complete';render();}
+}
+function nextSet(){
+  const ex=getAdjEx()[ST.exIdx];
+  if(ST.currentSet<ex.sets){ST.currentSet++;ST.isRest=false;ST.timeLeft=0;ST.timerOn=false;render();}
+  else showFb();
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────
+function render(){
+  if(ST.tab==='home')renderHome();
+  else if(ST.tab==='sessions')renderSessions();
+  else if(ST.tab==='history')renderHistory();
+  else if(ST.tab==='exercise')renderExercise();
+  else if(ST.tab==='complete')renderComplete();
+}
+
+function renderHome(){
+  const td=today();const sid=getSchedSid(td);const sm=SMETA[sid];const validated=isVal(td);const missed=getMissed();
+  const mon=addD(td,-(td.getDay()===0?6:td.getDay()-1));
+  let weekHtml='';
+  const sn={seanceA:'A',seanceB:'B',routine:'R',routineDojo:'R',course:'C',rest:'·'};
+  for(let i=0;i<7;i++){
+    const d=addD(mon,i);const dsid=getSchedSid(d);const dm=SMETA[dsid];
+    const isT=d.getTime()===td.getTime(),isPast=d<td,isV=isVal(d),rec=getRec(d);
+    const isMissed=isPast&&!isV&&dsid!=='rest'&&!rec.skipped;
+    const cls=isT?'today':isV?'done':isMissed?'missed':dsid==='rest'?'rest':'future';
+    const lbl={seanceA:'Séance A',seanceB:'Séance B',routine:'Routine',routineDojo:'R+Dojo',course:'Course',rest:'Repos'};
+    weekHtml+=`<div class="wd"><div class="wd-label">${DL[d.getDay()]}</div><div class="wd-dot ${cls}">${isV?'✓':(sn[dsid]||'·')}</div><div class="wd-type">${lbl[dsid]||'—'}</div></div>`;
+  }
+  let tc='';
+  if(sid==='rest'){tc=`<div class="today-card"><div class="tc-top"><div class="tc-icon">😴</div><div><div class="tc-name">Repos</div></div></div></div>`;}
+  else if(validated){tc=`<div class="today-card validated"><div class="tc-top"><div class="tc-icon">${sm.icon}</div><div><div class="tc-name">${sm.name}</div><div class="tc-dur">${sm.dur}</div></div></div><div class="btn-validated">✓ Séance validée — Bravo !</div></div>`;}
+  else{tc=`<div class="today-card"><div class="tc-top"><div class="tc-icon">${sm.icon}</div><div><div class="tc-name">${sm.name}</div><div class="tc-dur">${sm.dur}</div></div></div><div class="tc-actions"><button class="btn-start" onclick="startSession('${sid}')">▶ Commencer</button><button class="btn-validate" onclick="valToday('${sid}')">✓ Valider</button></div></div>`;}
+  let mb='';
+  if(missed.length>0){const m=missed[0];const msm=SMETA[m.sessionId];mb=`<div class="missed-banner"><div class="mb-title">Séance manquée</div><div class="mb-sub">${msm.icon} ${msm.name} — ${m.dateStr}</div><div class="mb-actions"><button class="btn-recover" onclick="recoverSess('${tdstr(m.date)}')">Récupérer aujourd'hui</button><button class="btn-skip" onclick="skipSess('${tdstr(m.date)}')">Ignorer</button></div></div>`;}
+  document.getElementById('app').innerHTML=`<div class="screen"><div class="topbar"><div class="topbar-title">Programme Aïkido</div></div><div class="scroll"><div class="home-pad"><div class="date-banner">${fmtD(td)}</div>${tc}${mb}<div class="week-strip">${weekHtml}</div></div></div>${renderNav()}</div>`;
+}
+
+function renderSessions(){
+  const list=SESSIONS.filter(s=>s.id!=='routineDojo').map(s=>`<div class="sc" onclick="startSession('${s.id}')"><div class="sc-top"><div class="sc-ico">${s.icon}</div><div><div class="sc-name">${s.name}</div><div class="sc-dur">${s.dur}</div></div></div><div class="sc-tags">${s.tags.map(t=>`<span class="sc-tag">${t}</span>`).join('')}</div></div>`).join('');
+  document.getElementById('app').innerHTML=`<div class="screen"><div class="topbar"><div class="topbar-title">Séances</div></div><div class="scroll"><div class="sp"></div><div class="session-list">${list}</div></div>${renderNav()}</div>`;
+}
+
+function renderHistory(){
+  let rows='';
+  for(let i=6;i>=-14;i--){
+    const d=addD(today(),-i);const dsid=getSchedSid(d);if(dsid==='rest')continue;
+    const dm=SMETA[dsid];const isFut=d>today();const v=isVal(d);const rec=getRec(d);
+    const isMissed=!isFut&&!v&&!rec.skipped;
+    const cls=isFut?'future':v?'done':isMissed?'missed':'';
+    const st=isFut?'À venir':v?'✓ Validée':isMissed?'Manquée':rec.skipped?'Ignorée':'—';
+    const sc=isFut?'future':v?'done':isMissed?'missed':'future';
+    rows+=`<div class="hist-day ${cls}"><div class="hist-ico">${dm.icon}</div><div class="hist-info"><div class="hist-name">${dm.name}</div><div class="hist-date">${fmtD(d)}</div></div><div class="hist-status ${sc}">${st}</div></div>`;
+  }
+  document.getElementById('app').innerHTML=`<div class="screen"><div class="topbar"><div class="topbar-title">Historique</div></div><div class="scroll"><div class="sp"></div><div class="history-list">${rows}</div><div class="sp"></div></div>${renderNav()}</div>`;
+}
+
+function renderExercise(){
+  const exs=getAdjEx();const ex=exs[ST.exIdx];const total=exs.length;
+  const pct=((ST.exIdx+1)/total*100).toFixed(0);const isLast=ST.exIdx===total-1;
+  const isCool=ex.tags&&ex.tags.includes('cool');
+  let ctrl='';
+  if(ex.type==='time'){
+    const isZ=ST.timeLeft===0&&!ST.timerOn,isW=ST.timeLeft<=5&&ST.timeLeft>0&&ST.timerOn;
+    ctrl=`<div class="timer-box"><div class="timer-lbl${ST.isRest?' rest':''}">${ST.isRest?'REPOS':(ex.sideNote?ex.sideNote.toUpperCase():'DURÉE')}</div><div class="timer-num${ST.isRest?' rest':isZ?' zero':isW?' warn':''}">${fmt(ST.timeLeft)}</div><div class="timer-btns"><button class="tbtn reset" onclick="resetTimer()">↺</button><button class="tbtn ${ST.timerOn?'pause':'play'}" onclick="${ST.timerOn?'pauseTimer()':'startTimer()'}"><span style="font-size:26px">${ST.timerOn?'⏸':'▶'}</span></button></div></div>`;
+  }else if(ex.type==='sets'){
+    const dots=Array.from({length:ex.sets},(_,i)=>`<div class="sdot ${i<ST.currentSet-1?'done':i===ST.currentSet-1?'cur':''}"></div>`).join('');
+    if(ST.isRest){
+      const isW=ST.timeLeft<=5&&ST.timeLeft>0;
+      ctrl=`<div class="timer-box"><div class="timer-lbl rest">REPOS — Série ${ST.currentSet-1}/${ex.sets}</div><div class="timer-num rest${isW?' warn':''}">${fmt(ST.timeLeft)}</div><div class="timer-btns"><button class="tbtn ${ST.timerOn?'pause':'play'}" onclick="${ST.timerOn?'pauseTimer()':'startTimer()'}"><span style="font-size:26px">${ST.timerOn?'⏸':'▶'}</span></button></div></div><button class="act-btn next-set" style="margin-top:8px" onclick="nextSet()">→ Série ${ST.currentSet}/${ex.sets} — Prêt</button>`;
+    }else{
+      ctrl=`<div class="sets-box"><div class="sets-row"><div class="sets-col"><div class="sets-col-lbl">Série</div><div class="sets-big">${ST.currentSet}/${ex.sets}</div></div><div class="sets-col"><div class="sets-col-lbl">Objectif</div><div class="sets-reps">${ex.reps}</div></div></div><div class="sets-dots">${dots}</div>${ST.currentSet<ex.sets?`<button class="act-btn rest" onclick="startRest()">✓ Terminée — 30s repos</button>`:`<button class="act-btn next-set" onclick="nextSet()">✓ Dernière série</button>`}</div>`;
+    }
+  }else{ctrl=`<div class="reps-box"><div class="sets-col-lbl">Objectif</div><div class="reps-val">${ex.reps}</div></div>`;}
+  const ytBtn=ex.yt?`<a class="yt-btn" href="https://www.youtube.com/results?search_query=${encodeURIComponent(ex.yt)}" target="_blank"><span style="font-size:18px">▶</span>Voir un exemple sur YouTube</a>`:'';
+  const stH=(ex.steps||[]).map((s,i)=>`<div class="step-row"><div class="step-n">${i+1}</div><div class="step-t">${s}</div></div>`).join('');
+  const fbOverlay=ST.showFeedback?renderFeedbackOverlay(ex):'';
+  document.getElementById('app').innerHTML=`<div class="screen"><div class="ex-topbar"><button class="btn-icon" onclick="ST.tab='sessions';render()">←</button><div class="ex-prog-wrap"><div class="ex-prog-lbl">${ST.exIdx+1} / ${total} — ${ST.exSession.name}</div><div class="ex-prog-bar"><div class="ex-prog-fill" style="width:${pct}%"></div></div></div></div><div class="scroll ex-body">${ex.sec?`<div class="ex-sec-lbl ${isCool?'cool':''}">${ex.sec}</div>`:''}<div class="ex-name">${ex.name}</div><div class="ex-tags">${tags2html(ex.tags)}</div>${diffBadgeHtml(ex)}${ctrl}${ytBtn}<div class="steps-hdr" onclick="ST.showSteps=!ST.showSteps;render()"><span class="steps-hdr-lbl">Instructions</span><span class="steps-hdr-ico ${ST.showSteps?'o':''}">▶</span></div>${ST.showSteps&&stH?`<div class="steps-body">${stH}</div>`:''}<div class="sp"></div></div><div class="ex-bottom"><div class="nav-row"><button class="nav-btn2 prev" onclick="prevEx()" ${ST.exIdx===0?'disabled':''}>← Préc.</button><button class="nav-btn2 ${isLast?'finish':'next'}" onclick="${isLast?'showFb()':'showFb()'}">
+    ${isLast?'Terminer ✓':'Suivant →'}</button></div></div>${fbOverlay}</div>`;
+}
+
+function renderFeedbackOverlay(ex){
+  return `<div class="fb-overlay" onclick=""><div class="fb-sheet">
+    <div class="fb-ex-name">${ex.name}</div>
+    <div class="fb-title">Comment c'était ?</div>
+    <div class="fb-btns">
+      <button class="fb-btn fb-easy" onclick="applyFeedback('easy')">
+        <span class="fb-ico">😌</span>
+        <div class="fb-lbl">Facile<div class="fb-sub">Augmenter la difficulté la prochaine fois</div></div>
+      </button>
+      <button class="fb-btn fb-norm" onclick="applyFeedback('normal')">
+        <span class="fb-ico">👍</span>
+        <div class="fb-lbl">Normal<div class="fb-sub">Garder le même niveau</div></div>
+      </button>
+      <button class="fb-btn fb-hard" onclick="applyFeedback('hard')">
+        <span class="fb-ico">😤</span>
+        <div class="fb-lbl">Dur<div class="fb-sub">Réduire la difficulté la prochaine fois</div></div>
+      </button>
+    </div>
+    <button class="fb-skip" onclick="skipFeedback()">Passer</button>
+  </div></div>`;
+}
+
+function renderComplete(){
+  document.getElementById('app').innerHTML=`<div class="screen"><div class="complete"><div class="cmp-ico">🥋</div><div class="cmp-title">Séance terminée !</div><div class="cmp-sub">${ST.exSession.name}</div><div class="cmp-quote">継続は力なり<br><span style="font-size:11px;color:var(--txt3)">La persévérance est la force</span></div><button class="cmp-btn" onclick="valAndHome()">✓ Valider la séance</button><button class="cmp-btn2" onclick="ST.tab='home';render()">Retour sans valider</button></div></div>`;
+}
+
+function renderNav(){
+  return `<div class="nav"><button class="nav-btn ${ST.tab==='home'?'on':''}" onclick="ST.tab='home';render()"><span class="nav-icon">🏠</span>Aujourd'hui</button><button class="nav-btn ${ST.tab==='sessions'?'on':''}" onclick="ST.tab='sessions';render()"><span class="nav-icon">📋</span>Séances</button><button class="nav-btn ${ST.tab==='history'?'on':''}" onclick="ST.tab='history';render()"><span class="nav-icon">📅</span>Historique</button></div>`;
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────
+function startSession(id){
+  clearInterval(timerInt);timerInt=null;
+  const s=getSess(id)||getSess('routine');
+  ST.exSession=s;ST.exIdx=0;ST.currentSet=1;
+  const exs=getAdjEx();ST.timeLeft=exs[0].type==='time'?exs[0].duration:0;
+  ST.timerOn=false;ST.isRest=false;ST.showSteps=false;ST.showFeedback=false;
+  ST.tab='exercise';render();
+}
+function valToday(sid){validate(today(),sid);render();}
+function valAndHome(){validate(today(),ST.exSession.id);ST.tab='home';render();}
+function skipSess(ds){skipMissed(new Date(ds));render();}
+function recoverSess(ds){recover(new Date(ds));render();}
+function prevEx(){
+  clearInterval(timerInt);timerInt=null;ST.showFeedback=false;
+  if(ST.exIdx>0){ST.exIdx--;ST.currentSet=1;const ex=getAdjEx()[ST.exIdx];ST.timeLeft=ex.type==='time'?ex.duration:0;ST.timerOn=false;ST.isRest=false;ST.showSteps=false;render();}
+}
+function showFb(){
+  clearInterval(timerInt);timerInt=null;
+  const ex=getAdjEx()[ST.exIdx];
+  if(ex.fb){ST.showFeedback=true;ST.feedbackExIdx=ST.exIdx;render();}
+  else doNextEx();
+}
+render();
+</script>
+</body>
+</html>
